@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phenomena Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-image: url('static/epidemic-prevention-pneumonia-synthetic-background_6227997.jpg!w700wp'); /* Local background image */
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+        }
+        h1 {
+            color: #ffcc00;
+            margin-top: 20px;
+        }
+        form {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.6);
+            max-width: 400px;
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        #result img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ffcc00;
+        }
+    </style>
+</head>
+<body>
+    <h1>Phenomena Detection</h1>
+    <form id="predictionForm" enctype="multipart/form-data">
+        <label for="file">Select Image:</label>
+        <input type="file" id="file" name="file" accept="image/*" required>
+        <button type="submit">Predict</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            let formData = new FormData();
+            let fileField = document.querySelector('input[type="file"]');
+
+            formData.append('file', fileField.files[0]);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                let resultDiv = document.getElementById('result');
+                if (data.error) {
+                    resultDiv.innerText = `Error: ${data.error}`;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p>Prediction: ${data.prediction}</p>
+                        <p>Confidence: ${data.confidence.toFixed(2)}%</p>
+                        <img src="${data.image_url}" alt="Uploaded Image">
+                    `;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
